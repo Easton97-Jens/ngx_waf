@@ -1,7 +1,10 @@
 #include <ngx_http_waf_module_util.h>
 
 
-extern ngx_module_t ngx_http_waf_module; /**< 模块详情 */
+extern ngx_module_t ngx_http_waf_module; /**< æ¨¡å—è¯¦æƒ… */
+
+
+extern ngx_int_t ngx_http_waf_handler_precontent_phase(ngx_http_request_t* r);
 
 
 extern void ngx_http_waf_handler_cleanup(void *data);
@@ -40,7 +43,7 @@ ngx_int_t ngx_http_waf_parse_ipv4(ngx_str_t text, ipv4_t* ipv4) {
         prefix_text[prefix_len] = '\0';
     } 
     else if (*c == '/' && prefix_len >= 7) {
-        /* 0.0.0.0 的长度刚好是 7 */
+        /* 0.0.0.0 çš„é•¿åº¦åˆšå¥½æ˜¯ 7 */
         ngx_memcpy(prefix_text, ipv4->text, prefix_len);
         prefix_text[prefix_len] = '\0';
     } 
@@ -125,7 +128,7 @@ ngx_int_t ngx_http_waf_parse_ipv6(ngx_str_t text, ipv6_t* ipv6) {
         prefix_text[prefix_len] = '\0';
     } 
     else if (*c == '/' && prefix_len >= 2) {
-        /* :: 的长度刚好是 2，此 IPV6 地址代表全零 */
+        /* :: çš„é•¿åº¦åˆšå¥½æ˜¯ 2ï¼Œæ­¤ IPV6 åœ°å€ä»£è¡¨å…¨é›¶ */
         ngx_memcpy(prefix_text, ipv6->text, prefix_len);
         prefix_text[prefix_len] = '\0';
     } 
@@ -552,6 +555,7 @@ ngx_int_t ngx_http_waf_sha256(u_char* dst, size_t dst_len, const void* buf, size
 
 
 void ngx_http_waf_get_ctx_and_conf(ngx_http_request_t* r, ngx_http_waf_loc_conf_t** conf, ngx_http_waf_ctx_t** ctx) {
+
     if (ctx != NULL) {
         *ctx = NULL;
         *ctx = ngx_http_get_module_ctx(r, ngx_http_waf_module);
@@ -613,6 +617,34 @@ void ngx_http_waf_make_inx_addr(ngx_http_request_t* r, inx_addr_t* inx_addr) {
 }
 
 
+void ngx_http_waf_set_rule_info(ngx_http_request_t* r, char* type, char* details, ngx_int_t gernal_logged, ngx_int_t blocked) {
+
+    ngx_http_waf_ctx_t* ctx = NULL;
+    ngx_http_waf_get_ctx_and_conf(r, NULL, &ctx);
+
+
+    size_t type_len = ngx_strlen(type);
+    size_t details_len = ngx_strlen(details);
+
+    ctx->rule_type.data = ngx_pcalloc(r->pool, type_len);
+    ctx->rule_type.len = type_len;
+    ngx_memcpy(ctx->rule_type.data, type, type_len);
+
+    ctx->rule_deatils.data = ngx_pcalloc(r->pool, details_len);
+    ctx->rule_deatils.len = details_len;
+    ngx_memcpy(ctx->rule_deatils.data, details, details_len);
+
+    if (gernal_logged == NGX_HTTP_WAF_TRUE) {
+        ctx->gernal_logged = 1;
+    }
+
+    if (blocked == NGX_HTTP_WAF_TRUE) {
+        ctx->blocked = 1;
+    }
+
+}
+
+
 ngx_int_t ngx_http_waf_http_post(ngx_http_request_t* r, const char* url, char* in, char** out) {
 
 #define _error_without_msg() {                      \
@@ -657,7 +689,7 @@ ngx_int_t ngx_http_waf_http_post(ngx_http_request_t* r, const char* url, char* i
         _set_opt(curl_handle, CURLOPT_DEBUGFUNCTION, _curl_handler_debug);
         _set_opt(curl_handle, CURLOPT_DEBUGDATA, (void*)r);
 
-        /* 启用此选项才能有调试信息 */
+        /* å¯ç”¨æ­¤é€‰é¡¹æ‰èƒ½æœ‰è°ƒè¯•ä¿¡æ¯ */
         _set_opt(curl_handle, CURLOPT_VERBOSE, 1L);
     }
 
@@ -728,9 +760,18 @@ ngx_int_t ngx_http_waf_gen_no_cache_header(ngx_http_request_t* r) {
     }
     header->hash = 1;
     header->lowcase_key = (u_char*)"cache-control";
-    ngx_str_set(&header->key, "Cache-Control");
+    ngx_str_set(&header->key, "Cache-control");
     ngx_str_set(&header->value, "no-store");
     return NGX_HTTP_WAF_SUCCESS;
+}
+
+
+void ngx_http_waf_register_content_handler(ngx_http_request_t* r) {
+    ngx_http_waf_ctx_t* ctx = NULL;
+    ngx_http_waf_get_ctx_and_conf(r, NULL, &ctx);
+    
+    ctx->register_content_handler = NGX_HTTP_WAF_TRUE;
+    r->content_handler = ngx_http_waf_handler_precontent_phase;
 }
 
 
@@ -774,42 +815,57 @@ static size_t _curl_handler_write(void *contents, size_t size, size_t nmemb, voi
 }
 
 
+//static int _curl_handler_debug(CURL* handle, curl_infotype type, char* data, size_t size, void* userp) {
+//    char* type_str = "";
+ //   int is_ssl = NGX_HTTP_WAF_FALSE;
+ //   switch (type) {
+  //      case CURLINFO_TEXT:
+   //         type_str = "Text";
+    //        break;
+     //   case CURLINFO_HEADER_OUT:
+       //     type_str = "Header Out";
+         //   break;
+        //case CURLINFO_DATA_OUT:
+          //  type_str = "Data Out";
+            //break;
+        //case CURLINFO_SSL_DATA_OUT:
+          //  is_ssl = NGX_HTTP_WAF_TRUE;
+            //type_str = "SSL Data Out";
+            //break;
+        //case CURLINFO_HEADER_IN:
+          //  type_str = "Header In";
+    //        break;
+      //  case CURLINFO_DATA_IN :
+        //    type_str = "Data In";
+          //  break;
+//        case CURLINFO_SSL_DATA_IN:
+  //          is_ssl = NGX_HTTP_WAF_TRUE;
+    //        type_str = "SSL Data In";
+      //      break;
+        //case CURLINFO_END:
+          //  type_str = "End";
+            //break;
+   // }
+
+   // ngx_str_t tmp;
+    //tmp.data = (u_char*)data;
+    //tmp.len = size / sizeof(u_char);
+
+    //return CURLE_OK;
+//}
+
 static int _curl_handler_debug(CURL* handle, curl_infotype type, char* data, size_t size, void* userp) {
-    char* type_str = "";
-    int is_ssl = NGX_HTTP_WAF_FALSE;
     switch (type) {
         case CURLINFO_TEXT:
-            type_str = "Text";
-            break;
         case CURLINFO_HEADER_OUT:
-            type_str = "Header Out";
-            break;
         case CURLINFO_DATA_OUT:
-            type_str = "Data Out";
-            break;
         case CURLINFO_SSL_DATA_OUT:
-            is_ssl = NGX_HTTP_WAF_TRUE;
-            type_str = "SSL Data Out";
-            break;
         case CURLINFO_HEADER_IN:
-            type_str = "Header In";
-            break;
-        case CURLINFO_DATA_IN :
-            type_str = "Data In";
-            break;
+        case CURLINFO_DATA_IN:
         case CURLINFO_SSL_DATA_IN:
-            is_ssl = NGX_HTTP_WAF_TRUE;
-            type_str = "SSL Data In";
-            break;
         case CURLINFO_END:
-            type_str = "End";
             break;
     }
-
-    ngx_str_t tmp;
-    tmp.data = (u_char*)data;
-    tmp.len = size / sizeof(u_char);
-
     return CURLE_OK;
 }
 
