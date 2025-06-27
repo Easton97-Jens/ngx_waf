@@ -8,7 +8,7 @@ ngx_int_t mem_pool_init(mem_pool_t* pool, mem_pool_flag_e flag, void* native_poo
 
 void* mem_pool_calloc(mem_pool_t* pool, ngx_uint_t byte_size) {
     if (ngx_http_waf_check_flag(pool->flag, MEM_POOL_FLAG_STDC)) {
-        return calloc(sizeof(uint8_t), byte_size);
+        return calloc(byte_size,sizeof(uint8_t));
 
     } else if (ngx_http_waf_check_flag(pool->flag, MEM_POOL_FLAG_NGX_SHARD)) {
         return ngx_slab_calloc_locked(pool->native_pool, byte_size);
