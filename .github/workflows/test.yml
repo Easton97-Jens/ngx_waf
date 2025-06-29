@@ -156,7 +156,7 @@ jobs:
 
       - name: Download & Build & Install nginx-${{ matrix.nginx-version }}
         run: |
-          sudo pip install lastversion
+          sudo python -m pip install lastversion
           lastversion download nginx:${{ matrix.nginx-version }}
           mkdir nginx-src
           tar zxf nginx-*.tar.gz --directory nginx-src --strip-components=1
