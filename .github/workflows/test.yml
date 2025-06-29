@@ -156,18 +156,22 @@ jobs:
 
       - name: Download & Build & Install nginx-${{ matrix.nginx-version }}
         run: |
-          sudo python -m pip install lastversion
-          lastversion download nginx:${{ matrix.nginx-version }}
+          python -m venv venv
+          source venv/bin/activate
+          pip install --upgrade pip
+          pip install lastversion
+      
+          venv/bin/lastversion download nginx:${{ matrix.nginx-version }}
           mkdir nginx-src
           tar zxf nginx-*.tar.gz --directory nginx-src --strip-components=1
-
+      
           cd nginx-src
-          if [ ${{ matrix.module-type }} = 'static module' ] ; then \
+          if [ "${{ matrix.module-type }}" = 'static module' ] ; then \
             opt='--add-module' ;\
           else \
             opt='--add-dynamic-module' ;\
           fi
-
+      
           ./configure ${opt}=${{ github.workspace }} --with-http_realip_module --with-cc-opt='-Wno-unused-but-set-variable -Wno-unused-function -fstack-protector-strong'
           make -j$(nproc)
           sudo make install
