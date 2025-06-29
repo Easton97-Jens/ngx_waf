@@ -371,7 +371,7 @@ static ngx_int_t _verify_cookies(ngx_http_request_t* r) {
     ngx_memzero(under_attack_client, sizeof(_info_t));
     ngx_memzero(under_attack_expect, sizeof(_info_t));
 
-#if (nginx_version >= 1023000)
+#if (nginx_version >= 1029000)
     if (r->headers_in.cookie != NULL) {
         ngx_table_elt_t* cookies = r->headers_in.cookie;
 #else
@@ -383,7 +383,7 @@ static ngx_int_t _verify_cookies(ngx_http_request_t* r) {
         ngx_str_set(&key, "__waf_captcha_uid");
         ngx_str_null(&value);
 
-#if (nginx_version >= 1023000)
+#if (nginx_version >= 1029000)
         if (ngx_http_parse_multi_header_lines(r, cookies, &key, &value) != NULL) {
 #else
         if (ngx_http_parse_multi_header_lines(cookies, &key, &value) != NGX_DECLINED) {
@@ -396,7 +396,7 @@ static ngx_int_t _verify_cookies(ngx_http_request_t* r) {
         ngx_str_set(&key, "__waf_captcha_hmac");
         ngx_str_null(&value);
 
-#if (nginx_version >= 1023000)
+#if (nginx_version >= 1029000)
         if (ngx_http_parse_multi_header_lines(r, cookies, &key, &value) != NULL) {
 #else
         if (ngx_http_parse_multi_header_lines(cookies, &key, &value) != NGX_DECLINED) {
@@ -409,7 +409,7 @@ static ngx_int_t _verify_cookies(ngx_http_request_t* r) {
         ngx_str_set(&key, "__waf_captcha_time");
         ngx_str_null(&value);
 
-#if (nginx_version >= 1023000)
+#if (nginx_version >= 1029000)
         if (ngx_http_parse_multi_header_lines(r, cookies, &key, &value) != NULL) {
 #else
         if (ngx_http_parse_multi_header_lines(cookies, &key, &value) != NGX_DECLINED) {
