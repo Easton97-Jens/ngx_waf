@@ -33,7 +33,7 @@ ngx_int_t ngx_http_waf_handler_under_attack(ngx_http_request_t* r) {
     _info_t* under_attack_client = ngx_pcalloc(r->pool, sizeof(_info_t));
     _info_t* under_attack_expect = ngx_pcalloc(r->pool, sizeof(_info_t));
 
-#if (nginx_version >= 1023000)
+#if (nginx_version >= 1029000)
     if (r->headers_in.cookie != NULL) {
         ngx_table_elt_t* cookies = r->headers_in.cookie;
 #else
@@ -46,7 +46,7 @@ ngx_int_t ngx_http_waf_handler_under_attack(ngx_http_request_t* r) {
         ngx_str_set(&key, "__waf_under_attack_time");
         ngx_str_null(&value);
 
-#if (nginx_version >= 1023000)
+#if (nginx_version >= 1029000)
         if (ngx_http_parse_multi_header_lines(r, cookies, &key, &value) != NULL) {
 #else
         if (ngx_http_parse_multi_header_lines(cookies, &key, &value) != NGX_DECLINED) {
@@ -59,7 +59,7 @@ ngx_int_t ngx_http_waf_handler_under_attack(ngx_http_request_t* r) {
         ngx_str_set(&key, "__waf_under_attack_uid");
         ngx_str_null(&value);
 
-#if (nginx_version >= 1023000)
+#if (nginx_version >= 1029000)
         if (ngx_http_parse_multi_header_lines(r, cookies, &key, &value) != NULL) {
 #else
         if (ngx_http_parse_multi_header_lines(cookies, &key, &value) != NGX_DECLINED) {
@@ -72,7 +72,7 @@ ngx_int_t ngx_http_waf_handler_under_attack(ngx_http_request_t* r) {
         ngx_str_set(&key, "__waf_under_attack_hmac");
         ngx_str_null(&value);
 
-#if (nginx_version >= 1023000)
+#if (nginx_version >= 1029000)
         if (ngx_http_parse_multi_header_lines(r, cookies, &key, &value) != NULL) {
 #else
         if (ngx_http_parse_multi_header_lines(cookies, &key, &value) != NGX_DECLINED) {
