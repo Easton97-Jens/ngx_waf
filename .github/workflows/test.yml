@@ -63,7 +63,7 @@ jobs:
             libxml2-dev \
             libgeoip-dev \
             libgd-dev \
-            libperl-dev \
+            libperl-dev libmodsecurity-dev \
             ca-certificates build-essential patch cmake git libtool autoconf automake perl bash \
             libatomic-ops-dev zlib1g-dev libluajit-5.1-dev libpcre2-dev libyajl-dev libxml2-dev libxslt1-dev libcurl4-openssl-dev \
             liblmdb-dev libfuzzy-dev lua5.1 lua5.3 liblua5.3-dev libgeoip-dev libmaxminddb-dev python3 libcjson-dev uthash-dev  \
@@ -133,7 +133,7 @@ jobs:
             libxml2-dev \
             libgeoip-dev \
             libgd-dev \
-            libperl-dev \
+            libperl-dev libmodsecurity-dev \
             ca-certificates build-essential patch cmake git libtool autoconf automake perl bash \
             libatomic-ops-dev zlib1g-dev libluajit-5.1-dev libpcre2-dev libyajl-dev libxml2-dev libxslt1-dev libcurl4-openssl-dev \
             liblmdb-dev libfuzzy-dev lua5.1 lua5.3 liblua5.3-dev libgeoip-dev libmaxminddb-dev python3 libcjson-dev uthash-dev  \
