@@ -488,7 +488,7 @@ ngx_int_t ngx_http_waf_handler_check_black_cookie(ngx_http_request_t* r) {
         return NGX_HTTP_WAF_NOT_MATCHED;
     }
 
-#if (nginx_version >= 1029000)
+#if (nginx_version >= 1028000)
     if (r->headers_in.cookie == NULL) {
         return NGX_HTTP_WAF_NOT_MATCHED;
     }
