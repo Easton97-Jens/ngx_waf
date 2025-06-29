@@ -1,8 +1,13 @@
 # Enable Bzlmod for every Bazel command
 common --enable_bzlmod
+common --enable_workspace
 common --verbose_failures
+common --subcommands
+common --show_loading_progress
+common --show_progress
+common --show_timestamps
+common --announce_rc
 common --registry=https://bcr.bazel.build
-common --registry=https://raw.githubusercontent.com/ADD-SP/ngx_waf_deps/60efa49539f3b508257cab89f4043ab36407ac86
 
 build --compilation_mode=fastbuild
 build --strip=never
