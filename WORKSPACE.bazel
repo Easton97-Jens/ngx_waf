@@ -1,0 +1,96 @@
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+# uthash
+http_archive(
+    name = "uthash",
+    urls = ["https://github.com/troydhanson/uthash/archive/refs/tags/v2.3.0.tar.gz"],
+    sha256 = "e10382ab75518bad8319eb922ad04f907cb20cccb451a3aa980c9d005e661acc",
+    strip_prefix = "uthash-2.3.0",
+    build_file_content = """
+package(default_visibility = ["//visibility:public"])
+
+exports_files([
+    "include/utarray.h",
+    "include/uthash.h",
+    "include/utlist.h",
+    "include/utringbuffer.h",
+    "include/utstack.h",
+    "include/utstring.h",
+])
+""",
+)
+
+# libsodium
+http_archive(
+    name = "libsodium",
+    urls = ["https://github.com/jedisct1/libsodium/releases/download/1.0.20-RELEASE/libsodium-1.0.20.tar.gz"],
+    sha256 = "ebb65ef6ca439333c2bb41a0c1990587288da07f6c7fd07cb3a18cc18d30ce19",
+    strip_prefix = "libsodium-stable",
+    build_file_content = """
+package(default_visibility = ["//visibility:public"])
+
+cc_library(
+    name = "libsodium",
+    srcs = glob(["src/**/*.c"]),
+    hdrs = glob(["src/**/*.h"]),
+    includes = ["src"],
+)
+""",
+)
+
+# libcjson
+http_archive(
+    name = "libcjson",
+    urls = ["https://github.com/DaveGamble/cJSON/archive/refs/tags/v1.7.18.tar.gz"],
+    sha256 = "3aa806844a03442c00769b83e99970be70fbef03735ff898f4811dd03b9f5ee5",
+    strip_prefix = "cJSON-1.7.18",
+    build_file_content = """
+package(default_visibility = ["//visibility:public"])
+
+cc_library(
+    name = "cjson",
+    srcs = ["cJSON.c"],
+    hdrs = ["cJSON.h"],
+    includes = ["."],
+)
+""",
+)
+
+# libinjection
+http_archive(
+    name = "libinjection",
+    urls = ["https://github.com/libinjection/libinjection/archive/refs/tags/v3.10.0.tar.gz"],
+    sha256 = "9dd7ae68a21a3c50f705c383b1b714c77fd4093b0a561a5400f0cb0ad79b1ae7",
+    strip_prefix = "libinjection-3.10.0",
+    build_file_content = """
+cc_library(
+    name = "libinjection",
+    srcs = glob(["src/*.c"]),
+    hdrs = glob(["src/*.h"]),
+    includes = ["src"],
+    visibility = ["//visibility:public"],
+)
+""",
+)
+
+# libmodsecurity
+http_archive(
+    name = "libmodsecurity",
+    urls = ["https://github.com/SpiderLabs/ModSecurity/releases/download/v3.0.14/modsecurity-v3.0.14.tar.gz"],
+    sha256 = "f7599057b35e67ab61764265daddf9ab03c35cee1e55527547afb073ce8f04e8",
+    strip_prefix = "modsecurity-v3.0.14",
+    build_file_content = """
+exports_files(["autogen.sh", "configure", "configure.ac"])
+
+filegroup(
+    name = "modsecurity_sources",
+    srcs = glob([
+        "src/**/*.cc",
+        "src/**/*.h",
+        "src/**/*.hh",
+        "headers/**/*.h",
+    ]),
+    visibility = ["//visibility:public"],
+)
+    """,
+)
